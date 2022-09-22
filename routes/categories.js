@@ -13,15 +13,8 @@ const {
 
 const collectionName = 'categories';
 
-router.get('/', (req, res) => {
-    try {
-        res.json({ ok: true });
-    } catch (error) {
-        res.sendStatus(error);
-    }
-});
 
-router.get('/search', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const data = await findDocuments({}, collectionName);
         res.status(200).json(data);
@@ -30,5 +23,7 @@ router.get('/search', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+
 
 module.exports = router;
