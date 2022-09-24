@@ -35,6 +35,17 @@ router.get('/search/name', async (req, res) => {
     }
 });
 
+// Search by id
+router.get('/search/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await findDocuments(id, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 router.post('/insert', async (req, res) => {
     try {
         const data = req.body;

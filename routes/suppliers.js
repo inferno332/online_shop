@@ -11,7 +11,7 @@ const {
     findDocuments,
 } = require('../mongodb/method');
 
-const collectionName = 'categories';
+const collectionName = 'suppliers';
 
 router.get('/', async (req, res) => {
     try {
