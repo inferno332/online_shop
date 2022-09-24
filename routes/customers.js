@@ -11,7 +11,7 @@ const {
     findDocuments,
 } = require('../mongodb/method');
 
-const collectionName = 'categories';
+const collectionName = 'customers';
 
 router.get('/', async (req, res) => {
     try {
@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 router.get('/search/name', async (req, res) => {
     try {
         const { text } = req.query;
-        const query = { name: new RegExp(`^${text}`) };
+        const query = { $or: [{firstName: new RegExp(`^${text}`)}, {lastName: new RegExp(`^${text}`)}] };
         const result = await findDocuments(query, collectionName);
         res.status(200).json(result);
     } catch (err) {

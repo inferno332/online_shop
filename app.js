@@ -9,6 +9,7 @@ var app = express();
 app.use(cors());
 
 var categoriesRouter = require('./routes/categories')
+var customersRouter = require('./routes/customers')
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -17,6 +18,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/categories', categoriesRouter);
+app.use('/customers', customersRouter);
 
 
 // catch 404 and forward to error handler
