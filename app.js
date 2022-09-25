@@ -10,8 +10,10 @@ app.use(cors());
 
 var categoriesRouter = require('./routes/categories');
 var customersRouter = require('./routes/customers');
-var suppliersRouter = require('./routes/suppliers');
 var employeesRouter = require('./routes/employees');
+var suppliersRouter = require('./routes/suppliers');
+var productsRouter = require('./routes/products');
+var ordersRouter = require('./routes/orders');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -22,6 +24,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/categories', categoriesRouter);
 app.use('/customers', customersRouter);
 app.use('/employees', employeesRouter);
+app.use('/suppliers', suppliersRouter);
+app.use('/products', productsRouter);
+app.use('/orders', ordersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
