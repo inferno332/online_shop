@@ -21,6 +21,39 @@ const query = [
     { stock: { $lte: 5 } },
 ];
 
+// Aggregation
+
+const aggregate = [
+    //Hiển thị tất cả các mặt hàng có Giá bán sau khi đã giảm giá <= 100.000
+    {
+        $project: {
+            name: 1,
+            price: 1,
+            discount: 1,
+            stock: 1,
+            discountedPrice: {
+                $subtract: [
+                    '$price',
+                    {
+                        $multiply: [
+                            '$price',
+                            {
+                                $divide: ['$discount', 100],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+    },
+    {
+        $match: {
+            discountedPrice: {
+                $lte: 1000,
+            },
+        },
+    },
+];
 
 // Get all
 router.get('/', async (req, res) => {
@@ -43,7 +76,7 @@ router.get('/', async (req, res) => {
         },
     ];
     try {
-        const result = await findDocuments({}, collectionName, { name: 1 }, 50, lookup);
+        const result = await findDocuments({}, collectionName, { name: 1 }, 50, aggregate);
         res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
