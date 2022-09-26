@@ -13,6 +13,15 @@ const {
 
 const collectionName = 'products';
 
+// Query
+const query = [
+    // Hiển thị tất cả các mặt hàng có giảm giá <= 10%
+    { discount: { $lte: 10 } },
+    // Hiển thị tất cả các mặt hàng có tồn kho <= 5
+    { stock: { $lte: 5 } },
+];
+
+
 // Get all
 router.get('/', async (req, res) => {
     const lookup = [
@@ -58,16 +67,6 @@ router.get('/search/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await findDocuments(id, collectionName);
-        res.status(200).json(result);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-router.post('/insert', async (req, res) => {
-    try {
-        const data = req.body;
-        const result = await insertDocument(data, collectionName);
         res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
