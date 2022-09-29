@@ -31,7 +31,7 @@ const matchYear = [
 
 router.get('/', async (req, res) => {
     try {
-        const result = await findDocuments({}, collectionName, { name: 1 }, 50, matchYear);
+        const result = await findDocuments({aggregate: matchYear}, collectionName);
         res.status(200).json(result);
     } catch (err) {
         console.log(err);

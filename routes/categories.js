@@ -13,9 +13,25 @@ const {
 
 const collectionName = 'categories';
 
+const aggregate = [
+    {
+        $lookup: {
+            from: 'products',
+            let: { id: '$_id' },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: { $eq: ['$$id', '$categoryId'] },
+                    },
+                },
+            ],
+            as: 'products',
+        },
+    },
+];
 router.get('/', async (req, res) => {
     try {
-        const result = await findDocuments({}, collectionName);
+        const result = await findDocuments({query: {}}, collectionName);
         res.status(200).json(result);
     } catch (err) {
         console.log(err);

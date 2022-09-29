@@ -75,7 +75,7 @@ const lookup = [
 // Get all
 router.get('/', async (req, res) => {
     try {
-        const result = await findDocuments({}, collectionName, { name: 1 }, 50, lookup);
+        const result = await findDocuments({aggregate: lookup}, collectionName);
         res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });

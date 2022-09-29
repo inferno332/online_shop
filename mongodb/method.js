@@ -131,34 +131,48 @@ function findDocument(id, collectionName) {
 }
 
 // Find many
-function findDocuments(query, collectionName, sort, limit = 50, aggregate = [], skip = 0, projection = {}) {
+function findDocuments(
+    { query = null, sort = null, limit = 50, aggregate = [], skip = 0, projection = null },
+    collectionName,
+) {
     return new Promise((resolve, reject) => {
         MongoClient.connect(CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
             .then((client) => {
                 const dbo = client.db(DATABASE_NAME);
                 const collection = dbo.collection(collectionName);
                 let cursor = collection;
-                if (aggregate.length === 0) {
+                if (query) {
                     cursor = cursor.find(query);
                 } else {
                     cursor = cursor.aggregate(aggregate);
                 }
-                cursor
-                    .sort(sort)
-                    .limit(limit)
-                    .skip(skip)
-                    // .project(projection)
-                    .toArray()
 
-                    .then((result) => resolve(result))
-                    .catch((err) => reject(err))
-                    .finally(() => client.close());
+                if (sort) {
+                    cursor = cursor.sort(sort);
+                }
+                cursor.limit(limit).skip(skip);
+
+                if (projection) {
+                    cursor = cursor.project(projection);
+                }
+
+                cursor
+                    .toArray()
+                    .then((result) => {
+                        client.close();
+                        resolve(result);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        client.close();
+                        reject(err);
+                    });
             })
-            .catch((err) => reject(err));
+            .catch((err) => {
+                reject(err);
+            });
     });
 }
-
-
 
 module.exports = {
     insertDocument,

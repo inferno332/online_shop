@@ -13,30 +13,73 @@ const {
 
 const collectionName = 'orders';
 
-
-
 // Get all
 router.get('/', async (req, res) => {
-    const lookup = [
-        {
-            $lookup: {
-                from: 'customers', // foreign collection name
-                localField: 'customerId',
-                foreignField: '_id',
-                as: 'customer', // alias
-            },
-        },
+    const aggregate = [
         {
             $lookup: {
                 from: 'products',
                 localField: 'orderDetails.productId',
                 foreignField: '_id',
-                as: 'product',
+                as: 'products',
+            },
+        },
+        {
+            $unwind: {
+                path: '$products',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+        {
+            $lookup: {
+                from: 'categories',
+                localField: 'products.categoryId',
+                foreignField: '_id',
+                as: 'products.category',
+            },
+        },
+        {
+            $lookup: {
+                from: 'suppliers',
+                localField: 'products.supplierId',
+                foreignField: '_id',
+                as: 'products.supplier',
+            },
+        },
+        {
+            $group: {
+                _id: '$_id',
+                code: { $first: '$code' },
+                products: {
+                    $push: {
+                        product: {
+                            _id: '$products._id',
+                            name: '$products.name',
+                            price: '$products.price',
+                            category: { $first: '$products.category' },
+                            supplier: { $first: '$products.supplier' },
+                        },
+                        quantity: {
+                            $getField: {
+                                field: 'quantity',
+                                input: {
+                                    $first: {
+                                        $filter: {
+                                            input: '$orderDetails',
+                                            as: 'od',
+                                            cond: { $eq: ['$$od.productId', '$products._id'] },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             },
         },
     ];
     try {
-        const result = await findDocuments({}, collectionName, { name: 1 }, 50, lookup);
+        const result = await findDocuments({ aggregate: aggregate }, collectionName);
         res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
