@@ -7,15 +7,31 @@ const {
     updateDocumentByID,
     deleteDocument,
     deleteDocuments,
-    findDocument,
+    changeDate,
     findDocuments,
 } = require('../mongodb/method');
 
 const collectionName = 'customers';
 
+// Hiển thị tất cả các khách hàng có địa chỉ ở Quận Hải Châu
+const query = { address: { $regex: /\b(\w*quận hải châu\w*)\b/ } };
+//
+const matchYear = [
+    {
+        $match: {
+            $expr: {
+                $and: [
+                    { $eq: [{ $dayOfMonth: '$birthday' }, { $dayOfMonth: new Date() }] },
+                    { $eq: [{ $month: '$birthday' }, { $month: new Date() }] },
+                ],
+            },
+        },
+    },
+];
+
 router.get('/', async (req, res) => {
     try {
-        const result = await findDocuments({}, collectionName);
+        const result = await findDocuments({}, collectionName, { name: 1 }, 50, matchYear);
         res.status(200).json(result);
     } catch (err) {
         console.log(err);
@@ -27,7 +43,7 @@ router.get('/', async (req, res) => {
 router.get('/search/name', async (req, res) => {
     try {
         const { text } = req.query;
-        const query = { $or: [{firstName: new RegExp(`^${text}`)}, {lastName: new RegExp(`^${text}`)}] };
+        const query = { $or: [{ firstName: new RegExp(`^${text}`) }, { lastName: new RegExp(`^${text}`) }] };
         const result = await findDocuments(query, collectionName);
         res.status(200).json(result);
     } catch (err) {

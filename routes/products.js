@@ -14,24 +14,22 @@ const {
 const collectionName = 'products';
 
 // Query
-const query = [
+const queries = [
     // Hiển thị tất cả các mặt hàng có giảm giá <= 10%
     { discount: { $lte: 10 } },
     // Hiển thị tất cả các mặt hàng có tồn kho <= 5
     { stock: { $lte: 5 } },
 ];
 
-// Aggregation
-
-const aggregate = [
-    //Hiển thị tất cả các mặt hàng có Giá bán sau khi đã giảm giá <= 100.000
+//Hiển thị tất cả các mặt hàng có Giá bán sau khi đã giảm giá <= 100.000
+const discountedPriceLte1000 = [
     {
         $project: {
             name: 1,
             price: 1,
             discount: 1,
             stock: 1,
-            discountedPrice: {
+            discountedPriceLte1000: {
                 $subtract: [
                     '$price',
                     {
@@ -55,28 +53,29 @@ const aggregate = [
     },
 ];
 
+const lookup = [
+    {
+        $lookup: {
+            from: 'categories', // foreign collection name
+            localField: 'categoryId',
+            foreignField: '_id',
+            as: 'category', // alias
+        },
+    },
+    {
+        $lookup: {
+            from: 'suppliers',
+            localField: 'supplierId',
+            foreignField: '_id',
+            as: 'supplier',
+        },
+    },
+];
+
 // Get all
 router.get('/', async (req, res) => {
-    const lookup = [
-        {
-            $lookup: {
-                from: 'categories', // foreign collection name
-                localField: 'categoryId',
-                foreignField: '_id',
-                as: 'category', // alias
-            },
-        },
-        {
-            $lookup: {
-                from: 'suppliers',
-                localField: 'supplierId',
-                foreignField: '_id',
-                as: 'supplier',
-            },
-        },
-    ];
     try {
-        const result = await findDocuments({}, collectionName, { name: 1 }, 50, aggregate);
+        const result = await findDocuments({}, collectionName, { name: 1 }, 50, lookup);
         res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
