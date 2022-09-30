@@ -13,6 +13,93 @@ const {
 
 const collectionName = 'orders';
 
+// ============== QUERIES =============== //
+// Hiển thị tất cả các đơn hàng có trạng thái là COMPLETED
+router.get('/question/7', async (req, res) => {
+    try {
+        const result = await findDocuments({ query: { status: 'COMPLETED' } }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các đơn hàng có trạng thái là COMPLETED trong ngày hôm nay
+router.get('/question/8', async (req, res) => {
+    const completedToday = {
+        $expr: {
+            $and: [
+                { $eq: ['$status', 'COMPLETED'] },
+                { $eq: [{ $dayOfMonth: '$shippedDate' }, { $dayOfMonth: new Date() }] },
+                { $eq: [{ $month: '$shippedDate' }, { $month: new Date() }] },
+                { $eq: [{ $year: '$shippedDate' }, { $year: new Date() }] },
+            ],
+        },
+    };
+    try {
+        const result = await findDocuments({ query: completedToday }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các đơn hàng có trạng thái là CANCELED
+router.get('/question/9', async (req, res) => {
+    try {
+        const result = await findDocuments({ query: { status: 'CANCELED' } }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các đơn hàng có trạng thái là CANCELED trong ngày hôm nay
+router.get('/question/10', async (req, res) => {
+    const canceledToday = {
+        $expr: {
+            $and: [
+                { $eq: ['$status', 'CANCELED'] },
+                { $eq: [{ $dayOfMonth: '$shippedDate' }, { $dayOfMonth: new Date() }] },
+                { $eq: [{ $month: '$shippedDate' }, { $month: new Date() }] },
+                { $eq: [{ $year: '$shippedDate' }, { $year: new Date() }] },
+            ],
+        },
+    };
+    try {
+        const result = await findDocuments({ query: canceledToday }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các đơn hàng có hình thức thanh toán là CASH
+router.get('/question/11', async (req, res) => {
+    try {
+        const result = await findDocuments({ query: { paymentType: 'CASH' } }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các đơn hàng có hình thức thanh toán là CREADIT CARD
+router.get('/question/12', async (req, res) => {
+    try {
+        const result = await findDocuments({ query: { paymentType: 'CREDIT CARD' } }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các đơn hàng có hình thức thanh toán là CREADIT CARD
+router.get('/question/13', async (req, res) => {
+    try {
+        const result = await findDocuments({ query: { shippingCity: 'Hà Nội' } }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ============END OF QUERIES============= //
+
 // Get all
 router.get('/', async (req, res) => {
     const aggregate = [

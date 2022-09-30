@@ -13,25 +13,61 @@ const {
 
 const collectionName = 'customers';
 
+// ============== QUERIES =============== //
 // Hiển thị tất cả các khách hàng có địa chỉ ở Quận Hải Châu
-const query = { address: { $regex: /\b(\w*quận hải châu\w*)\b/ } };
-//
-const matchYear = [
-    {
-        $match: {
-            $expr: {
-                $and: [
-                    { $eq: [{ $dayOfMonth: '$birthday' }, { $dayOfMonth: new Date() }] },
-                    { $eq: [{ $month: '$birthday' }, { $month: new Date() }] },
-                ],
-            },
+router.get('/question/4', async (req, res) => {
+    try {
+        const result = await findDocuments(
+            { query: { address: { $regex: /\b(\w*quận hải châu\w*)\b/ } } },
+            collectionName,
+        );
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các khách hàng có năm sinh 1990
+router.get('/question/5', async (req, res) => {
+    const matchYear = {
+        birthday: {
+            $gte: new Date('1990-01-01T00:00:00.000Z'),
+            $lt: new Date('1991-01-01T00:00:00.000Z'),
         },
-    },
-];
+    };
+    try {
+        const result = await findDocuments({ query: matchYear }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+// Hiển thị tất cả các khách hàng có sinh nhật là hôm nay
+router.get('/question/6', async (req, res) => {
+    const todayBirthday = [
+        { 
+          $match: {
+            $expr: {
+              $and: [
+                { $eq: [{ $dayOfMonth: '$birthday' }, { $dayOfMonth: new Date() }] },
+                { $eq: [{ $month: '$birthday' }, { $month: new Date() }] },
+              ],
+            },
+          }
+        }
+      ]
+    try {
+        const result = await findDocuments({ aggregate: todayBirthday }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ============END OF QUERIES============= //
 
 router.get('/', async (req, res) => {
     try {
-        const result = await findDocuments({aggregate: matchYear}, collectionName);
+        const result = await findDocuments({ aggregate: matchYear }, collectionName);
         res.status(200).json(result);
     } catch (err) {
         console.log(err);
