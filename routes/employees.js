@@ -13,6 +13,27 @@ const {
 
 const collectionName = 'employees';
 
+// ============== QUERIES =============== //
+// Hiển thị tất cả nhân viên có sinh nhật hôm nay
+router.get('/question/14', async (req, res) => {
+    const todayBirthday = {
+        $expr: {
+            $and: [
+              { $eq: [{ $dayOfMonth: '$birthday' }, { $dayOfMonth: new Date() }] },
+              { $eq: [{ $month: '$birthday' }, { $month: new Date() }] },
+            ],
+          },
+    }
+    try {
+        const result = await findDocuments({ query: todayBirthday }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ============END OF QUERIES============= //
+
 router.get('/', async (req, res) => {
     try {
         const result = await findDocuments({}, collectionName);

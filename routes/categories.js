@@ -10,28 +10,34 @@ const {
     findDocument,
     findDocuments,
 } = require('../mongodb/method');
+const { validateSchema, categorySchema } = require('../validation/schemas.yup');
 
 const collectionName = 'categories';
+// ============== QUERIES =============== //
+// Hiển thị tất cả danh mục (Categories) với số lượng hàng hóa trong mỗi danh mục
 
-const aggregate = [
-    {
-        $lookup: {
-            from: 'products',
-            let: { id: '$_id' },
-            pipeline: [
-                {
-                    $match: {
-                        $expr: { $eq: ['$$id', '$categoryId'] },
+router.get('/question/18', async (req, res) => {
+    const aggregate = [
+        {
+            $lookup: {
+                from: 'products',
+                let: { id: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ['$$id', '$categoryId'] },
+                        },
                     },
-                },
-            ],
-            as: 'products',
+                ],
+                as: 'products',
+            },
         },
-    },
-];
-router.get('/', async (req, res) => {
+        {
+            $addFields: {numberOfProducts: {$size: '$products'}}
+        }
+    ];
     try {
-        const result = await findDocuments({query: {}}, collectionName);
+        const result = await findDocuments({aggregate: aggregate}, collectionName);
         res.status(200).json(result);
     } catch (err) {
         console.log(err);
@@ -39,12 +45,15 @@ router.get('/', async (req, res) => {
     }
 });
 
+// ============END OF QUERIES============= //
+
+
 // Search by name
-router.get('/search/name', async (req, res) => {
+router.get('/search/name',validateSchema(categorySchema), async (req, res) => {
     try {
         const { text } = req.query;
         const query = { name: new RegExp(`^${text}`) };
-        const result = await findDocuments(query, collectionName);
+        const result = await findDocuments({query: query}, collectionName);
         res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -55,7 +64,7 @@ router.get('/search/name', async (req, res) => {
 router.get('/search/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await findDocuments(id, collectionName);
+        const result = await findDocuments({query: id}, collectionName);
         res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });

@@ -13,6 +13,38 @@ const {
 
 const collectionName = 'suppliers';
 
+// ============== QUERIES =============== //
+// Hiển thị tất cả nhà cung cấp (Suppliers) với số lượng hàng hóa mỗi nhà cung cấp
+router.get('/question/19', async (req, res) => {
+    const agg = [
+        {
+            $lookup: {
+                from: 'products',
+                let: { id: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ['$$id', '$supplierId'] },
+                        },
+                    },
+                ],
+                as: 'products',
+            },
+        },
+        {
+            $addFields: { numberOfProducts: { $size: '$products' } },
+        },
+    ];
+    try {
+        const result = await findDocuments({ aggregate: agg }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ============END OF QUERIES============= //
+
 router.get('/', async (req, res) => {
     try {
         const result = await findDocuments({}, collectionName);

@@ -7,7 +7,6 @@ const {
     updateDocumentByID,
     deleteDocument,
     deleteDocuments,
-    changeDate,
     findDocuments,
 } = require('../mongodb/method');
 

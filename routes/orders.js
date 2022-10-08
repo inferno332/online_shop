@@ -97,6 +97,46 @@ router.get('/question/13', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+// Hiển thị tất cả các mặt hàng được bán trong khoảng từ ngày, đến ngày
+router.get('/question/20', async (req, res) => {
+    const agg = [
+        {
+            $match: {
+                $expr: {
+                    $and: [
+                        { $eq: ['$status', 'COMPLETED'] },
+                        { $eq: [{ $dayOfMonth: '$shippedDate' }, { $dayOfMonth: new Date() }] },
+                        { $eq: [{ $month: '$shippedDate' }, { $month: new Date() }] },
+                        { $eq: [{ $year: '$shippedDate' }, { $year: new Date() }] },
+                    ],
+                },
+            },
+        },
+        {
+            $lookup: {
+                from: 'products',
+                localField: 'orderDetails.productId',
+                foreignField: '_id',
+                as: 'products',
+            },
+        },
+        {
+            $unwind: {
+                path: '$products',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+        {
+            $project: { products: 1, _id: 0 },
+        },
+    ];
+    try {
+        const result = await findDocuments({ aggregate: agg }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // ============END OF QUERIES============= //
 

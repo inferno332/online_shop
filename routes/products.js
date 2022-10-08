@@ -71,6 +71,39 @@ router.get('/question/3', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+// Hiển thị tất cả các mặt hàng không bán được
+router.get('/question/25', async (req, res) => {
+    const agg = [
+        {
+            $lookup: {
+                from: 'orders', // foreign collection name
+                localField: '_id',
+                foreignField: 'orderDetails.productId',
+                as: 'orders', // alias
+            },
+        },
+        {
+            $match: {
+                $expr: {
+                    $eq: [{ $size: '$orders' }, 0],
+                },
+            },
+        },
+        {
+            $group: {
+                _id: '$_id',
+                name: { $first: '$name' },
+                price: { $first: '$price' },
+            },
+        },
+    ];
+    try {
+        const result = await findDocuments({ aggregate: agg }, collectionName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // ============END OF QUERIES============= //
 // Get all
