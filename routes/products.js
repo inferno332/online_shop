@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+const mongoose = require('mongoose')
+const Product = require('../model/Product')
 
 const {
     insertDocument,
@@ -12,6 +14,20 @@ const {
 } = require('../mongodb/method');
 
 const collectionName = 'products';
+
+mongoose.connect('mongodb+srv://inferno332:khoapro1@cluster1.cllwm65.mongodb.net/Shop_Online/?retryWrites=true&w=majority')
+// ------------------------------------------------------------------------------------------------
+// BEGIN: MONGOOSE
+// ------------------------------------------------------------------------------------------------
+router.get('/mongoose',async(req,res) => {
+    try {
+        product = await Product.find({ query: { discount: { $lte: 10 } }},collectionName )
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+})
+
+
 
 // ============== QUERIES =============== //
 // Hiển thị tất cả các mặt hàng có giảm giá <= 10%
