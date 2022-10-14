@@ -3,7 +3,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 const { ObjectID } = require('mongodb');
 
 const DATABASE_NAME = 'Shop_Online';
-const CONNECTION_STRING = `mongodb+srv://inferno332:khoapro1@cluster1.cllwm65.mongodb.net/${DATABASE_NAME}/?retryWrites=true&w=majority`;
+const CONNECTION_STRING = `mongodb+srv://inferno332:khoapro1@cluster1.cllwm65.mongodb.net/${DATABASE_NAME}`;
 
 // INSERT: Thêm mới (một)
 function insertDocument(data, collectionName) {

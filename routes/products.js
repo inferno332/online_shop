@@ -15,7 +15,7 @@ const {
 
 const collectionName = 'products';
 
-mongoose.connect('mongodb+srv://inferno332:khoapro1@cluster1.cllwm65.mongodb.net/Shop_Online/?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://inferno332:khoapro1@cluster1.cllwm65.mongodb.net/Shop_Online')
 // ------------------------------------------------------------------------------------------------
 // BEGIN: MONGOOSE
 // ------------------------------------------------------------------------------------------------
