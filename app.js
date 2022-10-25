@@ -1,21 +1,26 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
+const express = require('express');
+const app = express();
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
+// JWT Setup
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
 
-var app = express();
+const jwtSettings = require('./constants/jwtSettings');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 
-app.use(cors());
+const categoriesRouter = require('./routes/categories');
+const customersRouter = require('./routes/customers');
+const employeesRouter = require('./routes/employees');
+const suppliersRouter = require('./routes/suppliers');
+const productsRouter = require('./routes/products');
+const ordersRouter = require('./routes/orders');
+const uploadRouter = require('./routes/upload');
 
-var categoriesRouter = require('./routes/categories');
-var customersRouter = require('./routes/customers');
-var employeesRouter = require('./routes/employees');
-var suppliersRouter = require('./routes/suppliers');
-var productsRouter = require('./routes/products');
-var ordersRouter = require('./routes/orders');
-
-var uploadRouter = require('./routes/upload');
+const authRouter = require('./routes/auth');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -23,14 +28,45 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// CORS
+app.use(cors());
+
+// Passport: Bearer Token
+var opts = {};
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = jwtSettings.SECRET;
+opts.issuer = jwtSettings.ISSUER;
+opts.audience = jwtSettings.AUDIENCE;
+
+passport.use(
+  new JwtStrategy(opts, function (payload, done) {
+    console.log('\n🚀 JwtStrategy 🚀\n');
+    const _id = payload.uid;
+    findDocument(_id, 'login')
+      .then((result) => {
+        if (result) {
+          return done(null, result);
+        } else {
+          return done(null, false);
+        }
+      })
+      .catch((err) => {
+        return done(err, false);
+      });
+  }),
+);
+
+// END: PASSPORT
+
 app.use('/categories', categoriesRouter);
 app.use('/customers', customersRouter);
 app.use('/employees', employeesRouter);
 app.use('/suppliers', suppliersRouter);
 app.use('/products', productsRouter);
 app.use('/orders', ordersRouter);
-
 app.use('/upload', uploadRouter);
+
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

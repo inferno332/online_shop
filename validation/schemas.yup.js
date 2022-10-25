@@ -13,6 +13,14 @@ const validateSchema = (schema) => async (req, res, next) => {
     }
 };
 
+const loginSchema = yup.object({
+    body: yup.object({
+      username: yup.string().email().required(),
+      password: yup.string().min(3).max(31).required(),
+    }),
+    params: yup.object({}),
+  });
+
 const categorySchema = yup.object({
     body: yup.object({
         name: yup.string(),
