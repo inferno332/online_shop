@@ -6,11 +6,11 @@ var jwt = require('jsonwebtoken');
 const jwtSettings = require('../constants/jwtSettings');
 const { findDocuments, findDocument } = require('../mongodb/method');
 
-router.post('/login', validateSchema(loginSchema), async (req, res, next) => {
+router.post('/login',  async (req, res, next) => {
   try {
     const { username, password } = req.body;
-
-    const login = await findDocuments({ query: { username, password }, projection: { _id: 1, username: 1 } }, 'login');
+    console.log(username, password);
+    const login = await findDocuments({ query: { username, password }, projection: { _id: 1, username: 1 } }, 'auth');
     if (login.length > 0) {
       // jwt
       var payload = {

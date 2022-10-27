@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
+const { findDocuments,findDocument } = require('./mongodb/method');
 // JWT Setup
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
@@ -42,7 +43,7 @@ passport.use(
   new JwtStrategy(opts, function (payload, done) {
     console.log('\n🚀 JwtStrategy 🚀\n');
     const _id = payload.uid;
-    findDocument(_id, 'login')
+    findDocument(_id, 'auth')
       .then((result) => {
         if (result) {
           return done(null, result);

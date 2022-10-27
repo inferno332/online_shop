@@ -49,4 +49,5 @@ module.exports = {
     categorySchema,
     supplierSchema,
     productSchema,
+    loginSchema
 };
